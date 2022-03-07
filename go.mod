@@ -152,7 +152,7 @@ require (
 	github.com/spf13/cobra v1.1.1
 	github.com/spf13/pflag v1.0.5
 	github.com/tencentcloud/tencentcloud-sdk-go v3.0.233+incompatible
-	github.com/tencentyun/cos-go-sdk-v5 v0.7.19
+	github.com/tencentyun/cos-go-sdk-v5 v0.7.34
 	github.com/vultr/govultr v0.5.0
 	github.com/xanzy/go-gitlab v0.50.2
 	github.com/yandex-cloud/go-genproto v0.0.0-20200722140432-762fe965ce77
@@ -338,6 +338,10 @@ require (
 )
 
 require github.com/PuerkitoBio/rehttp v1.0.0 // indirect
-require github.com/peterhellberg/link v1.1.0 // indirect
+
+require (
+	github.com/clbanning/mxj v1.8.4 // indirect
+	github.com/peterhellberg/link v1.1.0 // indirect
+)
 
 replace gopkg.in/jarcoal/httpmock.v1 => github.com/jarcoal/httpmock v1.0.5
