@@ -16,8 +16,10 @@ package gcp
 
 import (
 	"context"
+	"fmt"
 	"log"
 	"strings"
+	"time"
 
 	"github.com/GoogleCloudPlatform/terraformer/terraformutils"
 
@@ -40,22 +42,40 @@ func (g InstancesGenerator) createResources(ctx context.Context, instancesList *
 			if strings.HasPrefix(obj.Name, "gke-") {
 				continue
 			}
-			resource := terraformutils.NewResource(
-				obj.Name,
-				obj.Name,
-				"google_compute_instance",
-				g.ProviderName,
-				map[string]string{
-					"name":    obj.Name,
-					"project": g.GetArgs()["project"].(string),
-					"zone":    zone,
-					"disk.#":  "0",
-				},
-				instancesAllowEmptyValues,
-				instancesAdditionalFields,
-			)
-			resource.IgnoreKeys = append(resource.IgnoreKeys, "^boot_disk.[0-9].initialize_params\\.(.*)")
-			resources = append(resources, resource)
+			fmt.Println(obj.CreationTimestamp)
+			today := time.Now()
+			twoMonthsAgo := today.Add(-2 * 30 * 24 * time.Hour)
+
+			layout := "2006-01-02T15:04:05.000-05:00"
+			str := obj.CreationTimestamp
+			t, err := time.Parse(layout, str)
+
+			if err != nil {
+				fmt.Println(err)
+			}
+
+			fmt.Printf("one month ago: %+v\n", twoMonthsAgo)
+			if t.Before(twoMonthsAgo) {
+				fmt.Println("keeping")
+				resource := terraformutils.NewResource(
+					obj.Name,
+					obj.Name,
+					"google_compute_instance",
+					g.ProviderName,
+					map[string]string{
+						"name":    obj.Name,
+						"project": g.GetArgs()["project"].(string),
+						"zone":    zone,
+						"disk.#":  "0",
+					},
+					instancesAllowEmptyValues,
+					instancesAdditionalFields,
+				)
+				resource.IgnoreKeys = append(resource.IgnoreKeys, "^boot_disk.[0-9].initialize_params\\.(.*)")
+				resources = append(resources, resource)
+			} else {
+				continue
+			}
 		}
 		return nil
 	}); err != nil {
@@ -78,6 +98,11 @@ func (g *InstancesGenerator) InitResources() error {
 		t := strings.Split(zoneLink, "/")
 		zone := t[len(t)-1]
 		instancesList := computeService.Instances.List(g.GetArgs()["project"].(string), zone)
+		//for _, _ = range instancesList {
+		//	fmt.Println("horrrayyy")
+		//}
+		instancesList = instancesList.OrderBy("creationTimestamp desc")
+		fmt.Println("we filter here")
 		g.Resources = append(g.Resources, g.createResources(ctx, instancesList, zone)...)
 	}
 	return nil

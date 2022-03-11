@@ -15,7 +15,6 @@
 package terraformutils
 
 import (
-	"log"
 	"strings"
 
 	"github.com/GoogleCloudPlatform/terraformer/terraformutils/providerwrapper"
@@ -70,45 +69,14 @@ func (s *Service) ParseFilters(rawFilters []string) {
 }
 
 func (s *Service) ParseFilter(rawFilter string) []ResourceFilter {
-	var filters []ResourceFilter
-	if !strings.HasPrefix(rawFilter, "Name=") && len(strings.Split(rawFilter, "=")) == 2 {
-		parts := strings.Split(rawFilter, "=")
-		serviceName, resourcesID := parts[0], parts[1]
-		filters = append(filters, ResourceFilter{
-			ServiceName:      serviceName,
-			FieldPath:        "id",
-			AcceptableValues: ParseFilterValues(resourcesID),
-		})
-	} else {
-		parts := strings.Split(rawFilter, ";")
-		if !((len(parts) == 1 && strings.HasPrefix(rawFilter, "Name=")) || len(parts) == 2 || len(parts) == 3) {
-			log.Print("Invalid filter: " + rawFilter)
-			return filters
-		}
-		var ServiceNamePart string
-		var FieldPathPart string
-		var AcceptableValuesPart string
-		switch len(parts) {
-		case 1:
-			ServiceNamePart = ""
-			FieldPathPart = parts[0]
-			AcceptableValuesPart = ""
-		case 2:
-			ServiceNamePart = ""
-			FieldPathPart = parts[0]
-			AcceptableValuesPart = parts[1]
-		default:
-			ServiceNamePart = strings.TrimPrefix(parts[0], "Type=")
-			FieldPathPart = parts[1]
-			AcceptableValuesPart = parts[2]
-		}
 
-		filters = append(filters, ResourceFilter{
-			ServiceName:      ServiceNamePart,
-			FieldPath:        strings.TrimPrefix(FieldPathPart, "Name="),
-			AcceptableValues: ParseFilterValues(strings.TrimPrefix(AcceptableValuesPart, "Value=")),
-		})
-	}
+	var filters []ResourceFilter
+	filters = append(filters, ResourceFilter{
+		ServiceName:      "",
+		FieldPath:        strings.TrimPrefix("", "Name="),
+		AcceptableValues: ParseFilterValues(strings.TrimPrefix("", "Value=")),
+	})
+
 	return filters
 }
 

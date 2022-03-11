@@ -16,6 +16,7 @@ package terraformutils
 
 import (
 	"bytes"
+	"fmt"
 	"log"
 	"sync"
 
@@ -201,11 +202,9 @@ func FilterCleanup(s *Service, isInitial bool) {
 	var newListOfResources []Resource
 	for _, resource := range s.Resources {
 		allPredicatesTrue := true
-		for _, filter := range s.Filter {
-			if filter.isInitial() == isInitial {
-				allPredicatesTrue = allPredicatesTrue && filter.Filter(resource)
-			}
-		}
+		fmt.Println(resource.ResourceName)
+		fmt.Println(resource.InstanceInfo.Id)
+		fmt.Println(*resource.InstanceInfo.ResourceAddress())
 		if allPredicatesTrue && !ContainsResource(newListOfResources, resource) {
 			newListOfResources = append(newListOfResources, resource)
 		}

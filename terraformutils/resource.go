@@ -17,6 +17,7 @@ package terraformutils
 import (
 	"fmt"
 	"log"
+	"os"
 	"regexp"
 	"strings"
 	"time"
@@ -40,6 +41,11 @@ type Resource struct {
 	DataFiles         map[string][]byte
 }
 
+type ResourceCreatedDate struct {
+	Resource
+	DateCreated string
+}
+
 type ApplicableFilter interface {
 	IsApplicable(resourceName string) bool
 }
@@ -52,10 +58,14 @@ type ResourceFilter struct {
 }
 
 func (rf *ResourceFilter) Filter(resource Resource) bool {
+
 	if !rf.IsApplicable(strings.TrimPrefix(resource.InstanceInfo.Type, resource.Provider+"_")) {
 		return true
 	}
 	var vals []interface{}
+	fmt.Println("===%+v====", resource.ResourceName)
+	fmt.Println("===%+v====", resource.InstanceInfo.Id)
+	os.Exit(0)
 	switch {
 	case rf.FieldPath == "id":
 		vals = []interface{}{resource.InstanceState.ID}
